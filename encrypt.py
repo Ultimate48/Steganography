@@ -47,9 +47,8 @@ def encodePixels(pixels, data):
 
 
 def decryptImage(path):
-    pixels = extractPixels(path)[0]
+    pixels = np.ravel(extractPixels(path)[0])
     data, byte = '', ''
-    pixels = np.ravel(pixels)
     for p in pixels:
         if p % 2 == 0:
             byte += '0'
