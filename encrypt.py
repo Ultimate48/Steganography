@@ -2,13 +2,11 @@ from PIL import Image
 import numpy as np
 
 
-def extractPixels(path):
-    img = Image.open(path)
-    width, height = img.size
+def extractPixels(img):
     img = np.array(img)
     img = img.reshape(-1, 3)
     pixels = list(map(lambda x: tuple(x), img))
-    return pixels, width, height
+    return pixels
 
 
 def createImage(pixels, width, height, path='encrypted.png'):
@@ -47,7 +45,9 @@ def encodePixels(pixels, data):
 
 
 def decryptImage(path):
-    pixels = np.ravel(extractPixels(path)[0])
+    img = Image.open(path)
+    width, height = img.size
+    pixels = np.ravel(extractPixels(img))
     data, byte = '', ''
     for p in pixels:
         if p % 2 == 0:
@@ -64,7 +64,11 @@ def decryptImage(path):
 
 
 def encryptImage(path, data):
-    pixels, width, height = extractPixels(path)
+    img = Image.open(path)
+    width, height = img.size
+    if len(data) * 8 > width * height * 3:
+        raise Exception('Image is too small to encrypt this data.')
+    pixels = extractPixels(img)
     encoded_pixel = encodePixels(pixels, data)
     createImage(encoded_pixel, width, height)
 
