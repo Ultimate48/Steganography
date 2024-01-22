@@ -6,8 +6,6 @@ import os
 from pathlib import Path
 
 
-
-
 def file_to_binary(file_path):
     index = file_path.rfind('.')
     file_format = file_path[index + 1:]
@@ -92,7 +90,6 @@ def decryptImageToText(path):
 
 
 def getData(data):
-
     binary_string = data
 
     hex_string = '%0*X' % ((len(binary_string) + 3) // 4, int(binary_string, 2))
@@ -143,11 +140,12 @@ def encryptImageWithFile(img_path, file_path):
     data = file_to_binary(file_path)
     img = Image.open(img_path)
     width, height = img.size
-    if (len(data) + 1) * 8 > width * height * 3:
+    if len(data) + 8 > width * height * 3:
         raise Exception('Image is too small to encrypt this file.')
     pixels = extractPixels(img)
     encoded_pixel = encodePixels(pixels, data, file=True)
     createImage(encoded_pixel, width, height)
 
+
 if __name__ == '__main__':
-    decryptImageToFile('encrypted.png')
+    pass
