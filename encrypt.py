@@ -64,9 +64,15 @@ def decryptImage(path):
     return data
 
 
+def encryptImage(path, data):
+    pixels, width, height = extractPixels(path)
+    encoded_pixel = encodePixels(pixels, data)
+    createImage(encoded_pixel, width, height)
+
 if __name__ == '__main__':
-    # data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    # pixels, width, height = extractPixels('image.jpg')
-    # encoded_pixel = encodePixels(pixels, data)
-    # createImage(encoded_pixel, width, height)
+
+    data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+    encryptImage('image.png', data)
+
     print(decryptImage('encrypted.png'))
