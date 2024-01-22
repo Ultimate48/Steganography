@@ -20,7 +20,7 @@ def createImage(pixels, width, height, path='encrypted.png'):
 
 
 def encodePixels(pixels, data):
-    data += '\n'
+    data += '~'
     data = ''.join(format(ord(i), '08b') for i in data)
     pixels = np.ravel(pixels)
     newPixels = []
@@ -56,7 +56,7 @@ def decryptImage(path):
             byte += '1'
         if len(byte) == 8:
             byte = chr(int(byte, 2))
-            if byte == '\n':
+            if byte == '~':
                 return data
             data += byte
             byte = ''
@@ -72,10 +72,14 @@ def encryptImage(path, data):
     encoded_pixel = encodePixels(pixels, data)
     createImage(encoded_pixel, width, height)
 
+
 if __name__ == '__main__':
+    data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et " \
+           "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip " \
+           "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu " \
+           "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " \
+           "mollit anim id est laborum. "
 
-    data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-
-    encryptImage('image.png', data)
+    encryptImage("F:\\Photo.jpg", data)
 
     print(decryptImage('encrypted.png'))
