@@ -4,16 +4,22 @@ import base64
 import pickle
 import os
 from pathlib import Path
+import binascii
 
 
 def file_to_binary(file_path):
-    index = file_path.rfind('.')
-    file_format = file_path[index + 1:]
-    name = file_path[:index]
-    name = name.split('\\')[-1]
+    name = os.path.basename(file_path)
+    file_format = os.path.splitext(name)[1][1:]
+
+    chunk_size = 8192
+    data = b''
 
     with open(file_path, 'rb') as file:
-        data = file.read()
+        while True:
+            chunk = file.read(chunk_size)
+            if not chunk:
+                break
+            data += chunk
 
     file_data = {
         "data": data,
@@ -29,17 +35,13 @@ def file_to_binary(file_path):
 def extractPixels(img):
     img = np.array(img)
     img = img.reshape(-1, 3)
-    pixels = list(map(lambda x: tuple(x), img))
+    pixels = [tuple(p) for p in img]
     return pixels
 
 
 def createImage(pixels, width, height, path='encrypted.png'):
-    i = 0
-    frame = Image.new('RGB', (width, height))
-    for y in range(height):
-        for x in range(width):
-            frame.putpixel((x, y), pixels[i])
-            i += 1
+    pixels_flat = np.array(pixels).reshape(-1)
+    frame = Image.fromarray(pixels_flat.reshape((height, width, 3)).astype(np.uint8), 'RGB')
     frame.save(path)
 
 
@@ -49,26 +51,20 @@ def encodePixels(pixels, data, file=False):
         data = ''.join(format(ord(i), '08b') for i in data)
     else:
         data += "01111110"
-    pixels = np.ravel(pixels)
-    newPixels = []
-    index = 0
-    for p in pixels:
-        if data[0] == '0' and p % 2 == 1:
-            p -= 1
-        elif data[0] == '1' and p % 2 == 0:
-            p += 1
-        newPixels.append(p)
-        data = data[1:]
-        index += 1
-        if len(data) == 0:
-            break
-    for i in range(index, len(pixels)):
-        newPixels.append(pixels[i])
 
-    newPixels = np.array(newPixels)
-    newPixels = newPixels.reshape(-1, 3)
-    newPixels = list(map(lambda x: tuple(x), newPixels))
-    return newPixels
+    pixels = np.ravel(pixels)
+
+    for i, pixel_value in enumerate(pixels):
+        if i < len(data):
+            if data[i] == '0' and pixel_value % 2 == 1:
+                pixels[i] -= 1
+            elif data[i] == '1' and pixel_value % 2 == 0:
+                pixels[i] += 1
+        else:
+            break
+
+    pixels = pixels.reshape(-1, 3)
+    return [tuple(p) for p in pixels]
 
 
 def decryptImageToText(path):
@@ -92,9 +88,7 @@ def decryptImageToText(path):
 def getData(data):
     binary_string = data
 
-    hex_string = '%0*X' % ((len(binary_string) + 3) // 4, int(binary_string, 2))
-
-    binary_data = bytes.fromhex(hex_string)
+    binary_data = binascii.unhexlify('%0*X' % ((len(binary_string) + 3) // 4, int(binary_string, 2)))
 
     decoded_data = pickle.loads(base64.b64decode(binary_data))
 
