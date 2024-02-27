@@ -7,31 +7,6 @@ from pathlib import Path
 import binascii
 
 
-def file_to_binary(file_path):
-    name = os.path.basename(file_path)
-    file_format = os.path.splitext(name)[1][1:]
-
-    chunk_size = 8192
-    data = b''
-
-    with open(file_path, 'rb') as file:
-        while True:
-            chunk = file.read(chunk_size)
-            if not chunk:
-                break
-            data += chunk
-
-    file_data = {
-        "data": data,
-        "metadata": {"name": name, "format": file_format}
-    }
-
-    binary_data = base64.b64encode(pickle.dumps(file_data))
-    binary_string = ''.join(format(byte, '08b') for byte in binary_data)
-
-    return binary_string
-
-
 def extractPixels(img):
     img = np.array(img)
     img = img.reshape(-1, 3)
@@ -131,6 +106,30 @@ def encryptImageWithData(path, data):
 
 
 def encryptImageWithFile(img_path, file_path):
+    def file_to_binary(file_path):
+        name = os.path.basename(file_path)
+        file_format = os.path.splitext(name)[1][1:]
+
+        chunk_size = 8192
+        data = b''
+
+        with open(file_path, 'rb') as file:
+            while True:
+                chunk = file.read(chunk_size)
+                if not chunk:
+                    break
+                data += chunk
+
+        file_data = {
+            "data": data,
+            "metadata": {"name": name, "format": file_format}
+        }
+
+        binary_data = base64.b64encode(pickle.dumps(file_data))
+        binary_string = ''.join(format(byte, '08b') for byte in binary_data)
+
+        return binary_string
+
     data = file_to_binary(file_path)
     img = Image.open(img_path)
     width, height = img.size
